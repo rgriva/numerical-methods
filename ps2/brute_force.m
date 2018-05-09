@@ -1,6 +1,9 @@
 % Metodos Numericos - EPGE/FGV 2018
 % Instructor: Cezar Santos
-% Problem Set 2 - Raul Guarini Riva
+% [Vectorized] brute force implementation value function iteration
+
+% The goal of this script is to provide a benchmark in terms of
+% performance that will be useful in comparing other approaches against it.
 
 clc; close all; clear all;
 tic;            % Starting timer
@@ -39,35 +42,58 @@ V0 = repmat(sqrt(kgrid), 1, nz);     % Concave and increasing guess
 max_it = 1000;
 tol = 1e-3;
 
-% Real iteration
-disp('Solving the functional equation...')
-[V, g] = VFinder_Iterated(u, f, delta, beta, V0, P, kgrid, zgrid, max_it, tol);
+%% Iteration
+norm = tol + 1;
+it = 1;
+tic;
+[K, Z, new_K] = meshgrid(kgrid, zgrid, kgrid);
+K = permute(K, [2, 1, 3]);
+Z = permute(Z, [2, 1, 3]);
+new_K = permute(new_K, [2, 1, 3]);
+
+% Computing consumption on each possible state and choice
+C = max(f(Z,K) + (1-delta)*K - new_K,0);
+% All possible utilities
+U = u(C);
+
+disp('Starting value function iteration through the good and old brute force...')
+while it < max_it & norm > tol
+    EV = V0 * P';
+    EV = permute(repmat(EV, 1, 1, nk), [3, 2, 1]);
+    H = U + beta*EV;
+    [TV, index] = max(H, [], 3);
+    it = it + 1;        % Updating iterations
+    norm = max(max(abs(TV - V0)));       % Computing error
+    V0 = TV;
+    
+    if rem(it, 100) == 0
+        disp('Current iteration:')
+        disp(it)
+        disp('Current norm:')
+        disp(norm)
+    end
+end
+
+V = TV;
+g = kgrid(index);
 toc
 
-% Plotting some nice results
 %% Plotting
-set(0,'defaultAxesFontSize',16);
-figure('position', [100,10,1200, 800]); 
-subplot(2,1,2)
-hold on
+figure; hold on
 for i = 1:nz
-    plot(kgrid, g(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+    plot(g(:,i), 'DisplayName', strcat('iz = ', num2str(i)))
 end
 title('Policy Function')
-xlabel('Capital Stock')
 legend('show')
 hold off
 grid on
 
-subplot(2,1,1)
-hold on
+figure; hold on;
 for i = 1:nz
-    plot(kgrid, V(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+    plot(V(:,i), 'DisplayName', strcat('iz = ', num2str(i)))
 end
 title('Value Function')
-xlabel('Capital Stock')
 legend('show')
 hold off
 grid on
-
 

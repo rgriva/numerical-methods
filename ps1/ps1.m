@@ -110,7 +110,6 @@ disp(rho_hat_rou)
 toc
 
 %% Plotting stuff
-%  Plotting stuff
 figure;
 
 subplot(2,1,1)
