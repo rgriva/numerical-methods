@@ -42,10 +42,14 @@ tol = 1e-3;
 % Real iteration
 disp('Solving the functional equation...')
 [V, g] = VFinder_Iterated(u, f, delta, beta, V0, P, kgrid, zgrid, max_it, tol);
+
+time_iterated = toc;
 toc
 
-% Plotting some nice results
-%% Plotting
+% Saving results so we can compare them with other methods
+save('Item3_results', 'V', 'g', 'time_iterated')
+
+%% Plotting Results
 set(0,'defaultAxesFontSize',16);
 figure('position', [100,10,1200, 800]); 
 subplot(2,1,2)

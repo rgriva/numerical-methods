@@ -79,6 +79,7 @@ end
 
 g = kgrid(index);
 V = TV;
+disp('Fixed point found!!!')
             
             
         
