@@ -6,7 +6,6 @@
 % performance that will be useful in comparing other approaches against it.
 
 clc; close all; clear all;
-tic;            % Starting timer
 
 %% Item 2 - Calibration and Steady State
 beta = 0.987;
@@ -43,6 +42,7 @@ max_it = 1000;
 tol = 1e-3;
 
 %% Iteration
+tic
 norm = tol + 1;
 it = 1;
 tic;

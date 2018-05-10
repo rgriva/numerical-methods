@@ -3,7 +3,6 @@
 % Problem Set 2 - Raul Guarini Riva
 
 clc; close all; clear all;
-tic;            % Starting timer
 
 %% Item 2 - Calibration and Steady State
 beta = 0.987;
@@ -30,6 +29,7 @@ kgrid = linspace(0.75*kss, 1.25*kss, nk)';      % Column vector!!
 [zgrid, P] = tauchen_ar1(0, rho, sigma^2, nz, m);
 zgrid = zgrid';         % Row vector!
 disp('Tauchen discretization done.')
+disp(' ')   % Gimme some space!
 
 % Defining parameters for value function iteration:
 % In the matrix form, rows are different values of capital and columns are
@@ -40,22 +40,18 @@ max_it = 1000;
 tol = 1e-3;
 
 % Real iteration
-disp('Solving the functional equation...')
-[V, g] = VFinder_Iterated(u, f, delta, beta, V0, P, kgrid, zgrid, max_it, tol);
-
-time_iterated = toc;
+disp('Solving the functional equation with VFinder_Iterated...')
+tic     % Starting timer
+[V_iterated, g_iterated] = VFinder_Iterated(u, f, delta, beta, V0, P, kgrid, zgrid, max_it, tol);
 toc
-
-% Saving results so we can compare them with other methods
-save('Item3_results', 'V', 'g', 'time_iterated')
-
+time_iterated = toc;
 %% Plotting Results
 set(0,'defaultAxesFontSize',16);
-figure('position', [100,10,1200, 800]); 
+figure('position', [100,10,1000, 600]); 
 subplot(2,1,2)
 hold on
 for i = 1:nz
-    plot(kgrid, g(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+    plot(kgrid, g_iterated(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
 end
 title('Policy Function')
 xlabel('Capital Stock')
@@ -66,7 +62,7 @@ grid on
 subplot(2,1,1)
 hold on
 for i = 1:nz
-    plot(kgrid, V(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+    plot(kgrid, V_iterated(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
 end
 title('Value Function')
 xlabel('Capital Stock')
@@ -75,13 +71,37 @@ hold off
 grid on
 
 %% Item 4
-
-% Percentage of times real maximization is done:
-pct = 0.1;      % 10% of iterations!
-
-% starting fresh
-clear('V', 'g')
-
-[V, g] = VFinder_Accelerated
+% Percentage of times full optimization is done:
+pct = 1;      % 10% of iterations!
 
 
+disp('Solving the functional equation with VFinder_Accelerated...')
+tic
+[V_accelerated, g_accelerated] = VFinder_Accelerated(u, f, delta, beta, V0, P, kgrid, zgrid, max_it, tol, pct);
+toc
+time_accelerated = toc;
+
+%% Plot
+% Comparing results
+figure('position', [100,10,1100, 400]);
+subplot(1,2,1)
+hold on
+for i = 1:nz
+    plot(kgrid, V_iterated(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title('VFinder\_Iterated')
+xlabel('Capital Stock')
+legend('show')
+grid on
+hold off
+
+subplot(1,2,2)
+hold on
+for i = 1:nz
+    plot(kgrid, V_accelerated(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title('VFinder\_Accelerated')
+xlabel('Capital Stock')
+legend('show')
+grid on
+hold off

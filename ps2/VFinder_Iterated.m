@@ -19,7 +19,6 @@ function [V, g] = VFinder_Iterated(u, f, delta, beta, V0, P, kgrid, zgrid, max_i
 nk = length(kgrid);
 nz = length(zgrid);
 
-g = repmat(kgrid, 1, nz);
 norm = tol + 1;
 it = 1;
 
@@ -38,15 +37,14 @@ U = u(C);
 
 % Starting iterations
 
-while it < max_it & norm > tol
+while it < max_it && norm > tol
     % Procede with another iteration
     EV = V0 * P';
     EV = permute(repmat(EV, 1, 1, nk), [3, 2, 1]);
-    if it == 1;
+    if it == 1
     % Brute force for the first time
         H = U + beta*EV;
         [TV, index] = max(H, [], 3);
-        it = it +1;
     
     % For other iterations than the first, we exploit monotonicity and concavity
     else        
@@ -55,7 +53,7 @@ while it < max_it & norm > tol
                 pointer = index(max(ik-1, 1),iz);
                 H = U(ik, iz, pointer) + beta*EV(ik, iz, pointer);
                 H_next = U(ik, iz, pointer+1) + beta*EV(ik, iz, pointer+1);
-                while H_next > H & pointer < (nk-1)
+                while H_next > H && pointer < (nk-1)
                     pointer = pointer + 1;
                     H = H_next;
                     H_next = U(ik, iz, pointer+1) + beta*EV(ik, iz, pointer+1);

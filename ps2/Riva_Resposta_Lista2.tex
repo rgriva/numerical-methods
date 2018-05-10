@@ -99,10 +99,24 @@
 	
 	Para comparar o desempenho desta abordagem (que não utiliza nenhum tipo de vetorização), implementei o método de ``força bruta vetorizada''. Isto é, operar maximizações ao longo das dimensões de arrays do MATLAB evitando criar ``for loops''. Esta abordagem está no script \texttt{brute\_force.m}.
 	
-	Houve um ganho de desempenho considerável. O método de força bruta vetorizada computou a função valor e a função política em 8.85 segundos. O método que utiliza a função \texttt{VFinder\_Iterated.m} resolveu o mesmo problema em 6.39 segundos. Isto representa um ganho de quase 28\%, o que considero expressivo. 
+	Houve um ganho de desempenho considerável. O método de força bruta vetorizada computou a função valor e a função política em 9.96 segundos. O método que utiliza a função \texttt{VFinder\_Iterated.m} resolveu o mesmo problema em 7.84 segundos. Isto representa um ganho de quase 22\%, o que considero expressivo. 
 	
 	Nota-se, entretanto, que o método de força bruta é mais geral que seu concorrente, em vista do fato que funcionaria igualmente bem para um problema em que não tivéssemos um resultado teórico garantindo a monotonicidade da função política ou a concavidade do funcional em questão. Uma performance pior é o preço a ser pago pela maior versatilidade.
-
+	\end{problema}
 	
+	\begin{problema}
+		A função \texttt{VFinder\_Accelerated} implementa o mesmo algoritmo do problem anterior, se valendo da técnica do acelerador, contudo. Seu último argumento, \texttt{pct}, informa à função qual a frequência em que deve ser utilizada uma otimização completa: atualização da função política e da função valor. Por exemplo, \texttt{pct = 0.1} faz com que em 10\% das iterações só façamos a atualização da função valor, utilizando a função política de anterior. 
+		
+		Nas 50 primeiras iterações do algoritmo, otimizações completas são feitas, com o objetivo de colocar o processo ``na rota de convergência'' (isto é controlado através do parâmetro \texttt{safety\_net} no escopo da função).
+		
+		Abaixo, uma comparação das funções valor encontradas. Como esperado, temos a mesma solução (a menos de erros de aritmética de ponto flutuante):
+		\begin{figure}[h!]
+			\centering
+			\includegraphics[scale = 0.2]{iterated_vs_accelerated}
+		\end{figure}
+		
+		A função \texttt{VFinder\_Accelerated} resolveu o modelo em 7.66 segundos, cerca de 3\% mais rápido do que \texttt{VFinder\_Iterated}. O ganho de velocidade não foi expressivo, em minha visão, porque o algoritmo rival já não usa, a não ser na primeira iteração, o operador $\max()$, em vista da maneira como a concavidade do funcional foi explorada. Isto reduz o ganho de performance potencial do acelerador. Quando comparamos esta solução com a implementação de força bruta, entretanto, notamos um ganho de performance de mais de 3 segundos, mais de 30\%!
+		
+		
 	\end{problema}
 \end{document}
