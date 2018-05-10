@@ -12,6 +12,7 @@ function [V, g] = VFinder_Iterated(u, f, delta, beta, V0, P, kgrid, zgrid, max_i
 % V0: initial guess for iteration
 % P: transition matrix for the Markovian Shocks
 % kgrid: grid values for capital
+% zgrid: grid values for z shock (log of TFP)
 % max_it = maximum number of iterations
 % tol = convergence criterium
 

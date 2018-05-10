@@ -74,4 +74,14 @@ legend('show')
 hold off
 grid on
 
+%% Item 4
+
+% Percentage of times real maximization is done:
+pct = 0.1;      % 10% of iterations!
+
+% starting fresh
+clear('V', 'g')
+
+[V, g] = VFinder_Accelerated
+
 
