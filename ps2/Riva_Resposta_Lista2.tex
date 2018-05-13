@@ -115,8 +115,25 @@
 			\includegraphics[scale = 0.2]{iterated_vs_accelerated}
 		\end{figure}
 		
-		A função \texttt{VFinder\_Accelerated} resolveu o modelo em 7.66 segundos, cerca de 3\% mais rápido do que \texttt{VFinder\_Iterated}. O ganho de velocidade não foi expressivo, em minha visão, porque o algoritmo rival já não usa, a não ser na primeira iteração, o operador $\max()$, em vista da maneira como a concavidade do funcional foi explorada. Isto reduz o ganho de performance potencial do acelerador. Quando comparamos esta solução com a implementação de força bruta, entretanto, notamos um ganho de performance de mais de 3 segundos, mais de 30\%!
+		A função \texttt{VFinder\_Accelerated} resolveu o modelo em 7.66 segundos, cerca de 3\% mais rápido do que \texttt{VFinder\_Iterated}. O ganho de velocidade não foi expressivo, em minha visão, porque o algoritmo rival já não usa, a não ser na primeira iteração, o operador $\max()$, em vista da maneira como a concavidade do funcional foi explorada. Isto reduz o ganho de performance potencial do acelerador. Quando comparamos esta solução com a implementação de força bruta, entretanto, notamos um ganho de performance de mais de 3 segundos, mais de 30\%!\footnote{Estes resultados foram computados com base na sugestão da lista de usar $\texttt{pct}= 0.1$.}
 		
 		
 	\end{problema}
+	
+	
+\begin{problema}
+	O método do multigrid mostrou-se poderoso. Analisando o formato da função valor encontrada através dos outros dois métodos e em vista da facilidade/rapidez de sua implementação, optei pelo uso da interpolação linear. A curvatura de $V$ ao redor do estado estacionário não parece tão grande.
+	
+	Dado um chute inicial para a função valor, resolvi o problema funcional num grid inicial com 100 pontos, interpolei os valores encontrados num grid mais fino de 500 pontos e utilizei o interpolante como um novo chute inicial para resolver o problema no grid mais fino. Esta interpolação ocorreu linearmente para cada valor de $z$ fixo. Resolvido o problema no grid de 500 pontos, repeti o processo visando resolver a equação funcional num grid de 5000 pontos para $k$. O algoritmo levou ao redor de 73 segundos para convergir.
+		
+	Claro, este problema é mais complicado do que o problema anterior uma vez que multiplicamos por 10 o número de pontos no grid de $k$. Como discretizamos também a variável de controle, aumentamos em 100 vezes o número de pontos considerados. 
+	
+	Para comparar o desempenho do multigrid com os dois outros métodos implementados acima, através de \texttt{VFinder\_Iterated} e \texttt{VFinder\_Accelerated}, resolvi o problema com uma sequência de grids de 100, 250 e, finalmente, 500 pontos. O tempo de execução foi de 0.58 segundos, isto é, mais de 10x mais rápido do que os outros dois métodos!
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[scale = 0.22]{multigrid}
+	\end{figure}
+\end{problema}
+	
+
 \end{document}

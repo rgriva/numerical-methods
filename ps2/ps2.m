@@ -45,6 +45,7 @@ tic     % Starting timer
 [V_iterated, g_iterated] = VFinder_Iterated(u, f, delta, beta, V0, P, kgrid, zgrid, max_it, tol);
 toc
 time_iterated = toc;
+
 %% Plotting Results
 set(0,'defaultAxesFontSize',16);
 figure('position', [100,10,1000, 600]); 
@@ -53,7 +54,7 @@ hold on
 for i = 1:nz
     plot(kgrid, g_iterated(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
 end
-title('Policy Function')
+title('Policy Function (via VFinder\_Iterated)')
 xlabel('Capital Stock')
 legend('show')
 hold off
@@ -64,15 +65,15 @@ hold on
 for i = 1:nz
     plot(kgrid, V_iterated(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
 end
-title('Value Function')
+title('Value Function (via VFinder\_Iterated)')
 xlabel('Capital Stock')
 legend('show')
 hold off
 grid on
 
-%% Item 4
+%% Item 4 - Accelerator
 % Percentage of times full optimization is done:
-pct = 1;      % 10% of iterations!
+pct = 0.1;      % 10% of iterations!
 
 
 disp('Solving the functional equation with VFinder_Accelerated...')
@@ -81,7 +82,7 @@ tic
 toc
 time_accelerated = toc;
 
-%% Plot
+%% Plotting
 % Comparing results
 figure('position', [100,10,1100, 400]);
 subplot(1,2,1)
@@ -105,3 +106,64 @@ xlabel('Capital Stock')
 legend('show')
 grid on
 hold off
+
+%% Item 5 - Multigrid
+% These are the grid sizes that will be used in the multigrid scheme
+nk_multi = [100, 250, 500];
+
+tic
+for i = 1:length(nk_multi)
+    if i == 1
+        kgrid_multi = linspace(0.75*kss, 1.25*kss, nk_multi(i))';
+        V0 = repmat(sqrt(kgrid_multi), 1, nz);
+    end
+    
+    [V_multi, g_multi] = VFinder_Accelerated(u, f, delta, beta, V0, P, kgrid_multi, zgrid, max_it, tol, 0.1);
+    
+    % Defining new grid and redefine V0
+    if i < length(nk_multi)
+        next_kgrid_multi = linspace(0.75*kss, 1.25*kss, nk_multi(i+1))';
+        V0 = zeros(nk_multi(i+1), nz);
+        for iz = 1:nz
+            % Linear interpolation is used along each fixed iz. This is
+            % fast and the value function doesn't have so much curvature
+            % near the steady state, as the previous plots has shown
+            V0(:,iz) = interp1(kgrid_multi, V_multi(:,iz), next_kgrid_multi);
+        end
+        
+        kgrid_multi = next_kgrid_multi;
+    end
+end
+toc
+
+%% Plotting Results
+set(0,'defaultAxesFontSize',16);
+figure('position', [100,10,1000, 600]); 
+subplot(2,1,2)
+hold on
+for i = 1:nz
+    plot(kgrid, g_multi(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title('Policy Function (via VFinder\_Accelerated + Multigrid)')
+xlabel('Capital Stock')
+legend('show')
+hold off
+grid on
+
+subplot(2,1,1)
+hold on
+for i = 1:nz
+    plot(kgrid, V_iterated(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title('Value Function (via VFinder\_Accelerated + Multigrid)')
+xlabel('Capital Stock')
+legend('show')
+hold off
+grid on
+
+%% Item 6 - Endogenous Grid
+
+
+
+
+
