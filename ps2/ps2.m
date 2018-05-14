@@ -75,7 +75,7 @@ grid on
 % Percentage of times full optimization is done:
 pct = 0.1;      % 10% of iterations!
 
-
+disp(' ')
 disp('Solving the functional equation with VFinder_Accelerated...')
 tic
 [V_accelerated, g_accelerated] = VFinder_Accelerated(u, f, delta, beta, V0, P, kgrid, zgrid, max_it, tol, pct);
@@ -109,6 +109,12 @@ hold off
 
 %% Item 5 - Multigrid
 % These are the grid sizes that will be used in the multigrid scheme
+
+disp(' ')
+disp('To start multigrid method, press any key.')
+pause;
+disp(' ')
+disp('Starting multigrid method...')
 nk_multi = [100, 250, 500];
 
 tic
@@ -136,7 +142,7 @@ for i = 1:length(nk_multi)
 end
 toc
 
-%% Plotting Results
+ %% Plotting Results
 set(0,'defaultAxesFontSize',16);
 figure('position', [100,10,1000, 600]); 
 subplot(2,1,2)
@@ -162,6 +168,71 @@ hold off
 grid on
 
 %% Item 6 - Endogenous Grid
+
+% I start using polyfit to numerically invert the "Cash-at-Hand" LHS that
+% will appear when inverting the Euler Equation.
+
+[Z, K_extended] = meshgrid(zgrid, linspace(0.5*kss, 1.5*kss, 10000));
+m = exp(Z).*K_extended.^alpha + (1-delta)*K_extended; 
+
+[Z, K_new] = meshgrid(zgrid, kgrid);        % each row is a value for K and each column a value for log(z)
+K = K_new;      % Just for keeping a good notation
+
+% Creating a polynomial representation
+ deg = 4;        % polynomial degree
+ fitter = zeros(nz, deg+1);         % This holds the estimates coefficients
+ for iz = 1:nz
+     fitter(iz, :) = polyfit(m(:, iz), K_extended(:,1), deg);
+ end
+
+% The fitter object can be understood as a numerical inverse. For a fixed
+% z, I informed the data generated in m(k,z) as the independent variable to
+% the fitter and kgrid as the dependent variable.
+
+% ATTENTION: Each ROW of the fitter represents a given log(z) shock value.
+
+u_marginal = @(c) c.^(-mu);
+u_marginal_inverse = @(u) u.^(-1/mu);
+pmg = @(K_new, Z) alpha*exp(Z).*K_new.^(alpha -1) + 1 - delta;
+
+exo_grid = linspace(0.75*kss, 1.25*kss, nk)';
+endo_grid = zeros(nk, nz);      % We will have a different endogenous grid for each value of z;
+g_endogenous = zeros(nk, nz);    % Allocating memory for the policy function
+dist = tol + 1;
+it = 0;
+
+c0 = repmat(kgrid, 1, nz)/max(kgrid);      % Increasing guess for consumption function
+c = zeros(nk, nz);       % Allocating memory for comsumption policy function
+
+while it < max_it && dist > tol
+    E = u_marginal(c0).*pmg(K_new, Z) * P';
+    rhs = K_new + u_marginal_inverse(beta * E);
+    
+    % Computing the endogenous grid and recovering policy function for
+    % capital
+    
+    for iz = 1:nz
+        endo_grid(:, iz) = polyval(fitter(iz,:), rhs(:, iz));
+        g_endogenous(:, iz) = interp1(endo_grid(:, iz), kgrid, kgrid, 'linear');
+    end
+    g_endogenous = fillmissing(g_endogenous, 'linear');
+    
+    c = exp(Z).*K.^(alpha) + (1-delta)*K - g_endogenous;
+    
+    it = it+1;
+    dist = norm(c - c0);
+    c0 = c;
+end
+
+approx = norm(g_endogenous - g_iterated)
+
+% Computing Euler errors
+
+
+        
+
+
+
 
 
 
