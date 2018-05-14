@@ -102,3 +102,6 @@ ENV/
 
 # Texpad files
 .texpadtmp/
+
+# slides folder
+slides
