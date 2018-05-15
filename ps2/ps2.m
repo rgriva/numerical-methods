@@ -56,7 +56,7 @@ for i = 1:nz
 end
 title('Policy Function (via VFinder\_Iterated)')
 xlabel('Capital Stock')
-legend('show')
+legend('show', 'Location', 'southeast')
 hold off
 grid on
 
@@ -67,7 +67,7 @@ for i = 1:nz
 end
 title('Value Function (via VFinder\_Iterated)')
 xlabel('Capital Stock')
-legend('show')
+legend('show', 'Location', 'southeast')
 hold off
 grid on
 
@@ -92,7 +92,8 @@ for i = 1:nz
 end
 title('VFinder\_Iterated')
 xlabel('Capital Stock')
-legend('show')
+ylabel('Value Function')
+legend('show', 'Location', 'southeast')
 grid on
 hold off
 
@@ -103,7 +104,8 @@ for i = 1:nz
 end
 title('VFinder\_Accelerated')
 xlabel('Capital Stock')
-legend('show')
+ylabel('Value Function')
+legend('show', 'Location', 'southeast')
 grid on
 hold off
 
@@ -113,7 +115,7 @@ hold off
 disp(' ')
 disp('To start multigrid method, press any key.')
 pause;
-disp(' ')
+clc;
 disp('Starting multigrid method...')
 nk_multi = [100, 250, 500];
 
@@ -152,7 +154,7 @@ for i = 1:nz
 end
 title('Policy Function (via VFinder\_Accelerated + Multigrid)')
 xlabel('Capital Stock')
-legend('show')
+legend('show', 'Location', 'southeast')
 hold off
 grid on
 
@@ -163,7 +165,7 @@ for i = 1:nz
 end
 title('Value Function (via VFinder\_Accelerated + Multigrid)')
 xlabel('Capital Stock')
-legend('show')
+legend('show', 'Location', 'southeast')
 hold off
 grid on
 
@@ -171,6 +173,11 @@ grid on
 
 % I start using polyfit to numerically invert the "Cash-at-Hand" LHS that
 % will appear when inverting the Euler Equation.
+disp(' ')
+disp('To start Endogenous Grid Method, press any key')
+pause;
+clc;
+disp('Starting the Endogenous Grid Method...')
 
 [Z, K_extended] = meshgrid(zgrid, linspace(0.5*kss, 1.5*kss, 10000));
 m = exp(Z).*K_extended.^alpha + (1-delta)*K_extended; 
@@ -178,6 +185,7 @@ m = exp(Z).*K_extended.^alpha + (1-delta)*K_extended;
 [Z, K_new] = meshgrid(zgrid, kgrid);        % each row is a value for K and each column a value for log(z)
 K = K_new;      % Just for keeping a good notation
 
+tic
 % Creating a polynomial representation
  deg = 4;        % polynomial degree
  fitter = zeros(nz, deg+1);         % This holds the estimates coefficients
@@ -223,18 +231,40 @@ while it < max_it && dist > tol
     dist = norm(c - c0);
     c0 = c;
 end
+toc
+disp('Endogenous grid method has converged.')
 
-approx = norm(g_endogenous - g_iterated)
+%Computing Euler errors
+E = u_marginal(c0).*pmg(K_new, Z) * P';
+EE = log10(abs(1 - (u_marginal_inverse(beta*E))./(c)));
 
-% Computing Euler errors
+avg_EE = mean(mean(EE));
+fprintf('Average Euler Error: %.3f\n', avg_EE);
 
+%% Plotting Euler Errors
 
-        
+set(0,'defaultAxesFontSize',16);
+figure('position', [100,10,1100, 600]); 
+subplot(1,2,1)
+hold on
+for i = 1:nz
+    plot(kgrid, g_endogenous(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title('Policy Function (via Endogenous Grid Method)')
+xlabel('Capital Stock')
+legend('show', 'Location', 'southeast')
+hold off
+grid on
 
+subplot(1,2,2)
+hold on
+for i = 1:nz
+    plot(kgrid, EE(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)), 'LineWidth', 2)
+end
+title('Euler Errors (via Endogenous Grid Method)')
+xlabel('Capital Stock')
+legend('show', 'Location', 'northeast')
+hold off
+grid on
 
-
-
-
-
-
-
+% --- END ---
