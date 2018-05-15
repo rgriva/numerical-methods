@@ -135,5 +135,17 @@
 	\end{figure}
 \end{problema}
 	
-
+\begin{problema}
+	O método do grid endógeno mostrou-se também poderoso, ainda que tenha tido performance um pouco pior do que o multigrid. O algoritmo convergiu em 1.66 segundos, o que representa uma significativa melhora com respeito ao método do acelerador e da força bruta, no entanto.
+	
+	Como pode ser visto a partir da Equação de Euler derivada no Problema 2, dado o grid exógeno para $k'$ e um chute para a função política do consumo, não podemos inverter o lado esquerdo diretamente e encontrar o valor de $k_{egm}$ do grid endógeno pois a função $zk^{\alpha} + (1-\delta)k$ não admite inversa analítica trivial em $k$, ponto a ponto em $z$. A saída que encontrei foi inverter $m(k) =  zk^{\alpha} + (1-\delta)k$ numericamente, dado um valor de $z$. Fiz isto através da função $\texttt{polyfit}$ do MATLAB, usando um polinômio de grau 4.
+	
+	Uma vez que não há teoremas gerais com respeito à convergência do método do grid endógeno, computei os Euler Errors para checar a qualidade da aproximação. O erro médio foi de $-3.033$, o que considero satisfatório. A figure a seguir mostra a função política do capital e os Euler Errors encontrados:
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[scale = 0.22]{EE.png}
+	\end{figure}
+	
+	A qualidade da aproximação é tanto melhor quanto mais próximo se estiver do capital de estado estacionário sem incerteza, para cada $z$ fixo. De fato, nos pontos de maior precisão, os Euler Errors ficaram ao redor de -6, valor considerado satisfatório pelos slides. Nos pontos em que a aproximação se mostrou pior, os Euler Errors se mantiveram ao redor de -2.5. Levando em conta a escala logarítmica, a interpretação nestes casos é de que estamos errando o valor do consumo ótimo em \$1 a cada $10^{-2.5} \approx \$ 316$ gastos, um erro de aproximadamente $0.32\%$. 
+\end{problema}
 \end{document}
