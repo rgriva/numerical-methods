@@ -1,7 +1,7 @@
 function [grid, P] = tauchen_ar1(mu, rho, sigma2, N, m)
-% This function implements Tauchen discretization method. It takes as
+% This function implements Tauchen (1986) discretization method. It takes as
 % arguments the average mu of an AR1 process, error variance sigma2,
-% persistence coefficient rho, the number of N points in a grid and the scaling
+% persistence coefficient rho, the number N of points in a grid and the scaling
 % parameter m.
 % Outputs are the grid (state values) and the corresponding transition matrix.
 
