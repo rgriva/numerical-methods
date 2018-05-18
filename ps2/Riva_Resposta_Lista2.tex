@@ -89,7 +89,7 @@
 \end{problema}
 
 \begin{problema}
-	Para esta primeira implementação, explorei a monotonicidade da função política e a concavidade do funcional sendo otimizado. O código está no formato de uma função chamada \texttt{VFinder\_Iterated.m}, devidamente documentada através do próprio \texttt{help} do MATLAB.
+	O arquivo com o código principal da lista é \texttt{ps2.m}. Para esta primeira implementação, explorei a monotonicidade da função política e a concavidade do funcional sendo otimizado. O código está no formato de uma função chamada \texttt{VFinder\_Iterated.m}, devidamente documentada através do próprio \texttt{help} do MATLAB.
 	
 	A primeira iteração foi feita através de força bruta e as próximas seguiram explorando os aspectos teóricos do problema. Abaixo, a função valor e a função política (como esperado, crescente!!!):
 	\begin{figure}[htb!]
@@ -138,7 +138,7 @@
 \end{problema}
 	
 \begin{problema}
-	O método do grid pareceu promissor, ainda que tenha tido performance um pouco pior do que o multigrid. O algoritmo convergiu em 1.66 segundos, o que representa uma significativa melhora com respeito ao método do acelerador e da força bruta, no entanto.
+	O método do grid endógeno pareceu promissor, ainda que tenha tido performance um pouco pior do que o multigrid. O algoritmo convergiu em 1.66 segundos, o que representa uma significativa melhora com respeito ao método do acelerador e da força bruta, no entanto.
 	
 	Como pode ser visto a partir da Equação de Euler derivada no Problema 2, dado o grid exógeno para $k'$ e um chute para a função política do consumo, não podemos inverter o lado esquerdo diretamente e encontrar o valor de $k_{egm}$ do grid endógeno pois a função $zk^{\alpha} + (1-\delta)k$ não admite inversa analítica trivial em $k$, ponto a ponto em $z$. A saída que encontrei foi inverter $m(k) =  zk^{\alpha} + (1-\delta)k$ numericamente, dado um valor de $z$. Fiz isto através da função $\texttt{polyfit}$ do MATLAB, usando um polinômio de grau 4.
 	
