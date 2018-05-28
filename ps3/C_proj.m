@@ -4,14 +4,18 @@ function proj = C_proj(gamma, K, kgrid)
 % The order of projection is the size of gamma (for order d, choose a d+1
 % dimensional gamma)
 
-point = (K-min(kgrid))/(max(kgrid) - min(kgrid));
-T = zeros(length(gamma),1);
-T(1) = 1;
-T(2) = point;
+a = 2/(max(kgrid) - min(kgrid));
+b = -1*((max(kgrid) + min(kgrid)) / (max(kgrid) - min(kgrid)));
 
-for i = 3:length(gamma)
-    T(i) = 2*point*T(i-1) - T(i-2);
+% Remapping into -1 and 1
+point = a*K + b;
+
+T = zeros(length(gamma), length(K));
+for i=1:length(gamma)
+    T(i,:) = chebyshev_poly(i, K);
 end
 
 proj = gamma'*T;
 
+%End function
+end

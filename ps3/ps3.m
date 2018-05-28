@@ -36,10 +36,25 @@ disp(' ')   % Gimme some space!
 
 % I will follow the steps from the slides
 d = 10;         % Order of polynomial
-gamma = ones(d, 1);     % Initial guess for gamma
+gamma0 = ones(d+1, 1);     % Initial guess for gamma
 
+% Finding the roots:
+[~, roots] = chebyshev_poly(d+1, 0);
 
+% Reverting to original grid:
+a = 2/(max(kgrid) - min(kgrid));
+b = -1*((max(kgrid) + min(kgrid)) / (max(kgrid) - min(kgrid)));
+K0 = (roots - b)/a;
 
+% % Using the resource constraint
+% C0 = C_proj(gamma, K0, kgrid);
+% K1 = K0.^alpha + (1 - delta)*K0 - C0;
+% C1 = C_proj(gamma, K1, kgrid);
 
+% % Creating the Risk Function
+% R = @(gamma) beta*((C_proj(gamma, K0, kgrid)) / (C_proj(gamma, K0.^alpha + (1 - delta)*K0 - C_proj(gamma, K0, kgrid), kgrid))).^(-mu) * 
 
+R = @(gamma) risk_function(gamma, K0, kgrid, alpha, mu, beta, delta);
+
+[gamma_optimal, fval] = fsolve(R, gamma0)
 
