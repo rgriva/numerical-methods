@@ -36,8 +36,10 @@ disp(' ')   % Gimme some space!
 
 % I will follow the steps from the slides
 d = 10;         % Order of polynomial
-gamma = ones(d, 1);
+gamma = ones(d, 1);     % Initial guess for gamma
 
-C = 
+
+
+
 
 
