@@ -12,7 +12,7 @@ point = a*K + b;
 
 T = zeros(length(gamma), length(K));
 for i=1:length(gamma)
-    T(i,:) = chebyshev_poly(i, K);
+    T(i,:) = chebyshev_poly(i-1, point);
 end
 
 proj = gamma'*T;

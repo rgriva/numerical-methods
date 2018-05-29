@@ -34,27 +34,110 @@ disp(' ')   % Gimme some space!
 
 %% Item 1 - Chebyshev Polynomials
 
+tic;
 % I will follow the steps from the slides
-d = 10;         % Order of polynomial
-gamma0 = ones(d+1, 1);     % Initial guess for gamma
+d = 3;         % Order of target polynomial
 
-% Finding the roots:
-[~, roots] = chebyshev_poly(d+1, 0);
-
-% Reverting to original grid:
 a = 2/(max(kgrid) - min(kgrid));
 b = -1*((max(kgrid) + min(kgrid)) / (max(kgrid) - min(kgrid)));
-K0 = (roots - b)/a;
 
-% % Using the resource constraint
-% C0 = C_proj(gamma, K0, kgrid);
-% K1 = K0.^alpha + (1 - delta)*K0 - C0;
-% C1 = C_proj(gamma, K1, kgrid);
+C = zeros(nk, nz);
 
-% % Creating the Risk Function
-% R = @(gamma) beta*((C_proj(gamma, K0, kgrid)) / (C_proj(gamma, K0.^alpha + (1 - delta)*K0 - C_proj(gamma, K0, kgrid), kgrid))).^(-mu) * 
+% The implementation cannot use d=7 directly. On my tests, these was
+% unreliable. It would generate strange beheavior (negative consumptio). So
+% I procede in a "multigrid" for gamma.
 
-R = @(gamma) risk_function(gamma, K0, kgrid, alpha, mu, beta, delta);
+disp('Starting the projection on Chebyshev Polynomials...')
+for iz = 1:nz
+    gamma_optimal = ones(2,1);      % Just to start the loop
+    state = iz;
+    
+    % Compute gamma_optimal for a fixed value of current z
+    for id = 2:d
+        
+        % Finding roots and reverting them back to original scale
+        [~, roots] = chebyshev_poly(id+1, 0);
+        K0 = ((roots - b)/a)';
+        
+        % Function handle
+        R = @(gamma) risk_function(gamma, K0, kgrid, zgrid, state, P, alpha, mu, beta, delta);
+        
+        % Update initial condition
+        gamma0 = zeros(id+1, 1);
+        gamma0(1:id) = gamma_optimal;
+        
+        % Solving the system
+        options = optimset('Display','off');     % Turning off dialogs
+        gamma_optimal = fsolve(R, gamma0, options);
+    end
+    
+    % Interpolated policy function for consumption
+    C(:, iz) = C_proj(gamma_optimal, kgrid, kgrid);
+end
+disp('Spectral projection done.')
+toc
 
-[gamma_optimal, fval] = fsolve(R, gamma0)
+disp(' ')
+
+% Computing the policy function for capital
+g = exp(zgrid).*kgrid.^alpha + (1-delta)*kgrid - C;
+
+%% Computing Euler Errors
+u_marginal = @(c) c.^(-mu);
+u_marginal_inverse = @(u) u.^(-1/mu);
+pmg = @(K_new, Z) alpha*exp(Z).*K_new.^(alpha - 1) + 1 - delta;
+
+% Computing consumption tomorrow interpolating the policy function for
+% comsumption found previously
+
+next_C = zeros(nk, nz);
+
+for iz = 1:nz
+    next_C(:, iz) = interp1(kgrid, C(:, iz), g(:, iz));
+end
+
+E = u_marginal(next_C).* pmg(g, zgrid) * P';
+EE = log10(abs(1 - u_marginal_inverse(beta*E)./C));
+
+%% Plotting Item 1
+disp('Press any key to plot results from Item 1')
+pause;
+
+set(0,'defaultAxesFontSize',16);
+figure('position', [100,10,900, 1400]); 
+subplot(3,1,1)
+hold on
+for i = 1:nz
+    plot(kgrid, g(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Policy Function for Capital Stock (using %d Chebyshev Polynomials)', d))
+xlabel('Capital Stock')
+legend('show', 'Location', 'southeast')
+hold off
+grid on
+
+subplot(3,1,2)
+hold on
+for i = 1:nz
+    plot(kgrid, C(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Policy Function for Consumption (using %d Chebyshev Polynomials)', d))
+xlabel('Capital Stock')
+legend('show', 'Location', 'southeast')
+hold off
+grid on
+
+% Plotting Euler Errors
+
+subplot(3,1,3)
+hold on
+for i = 1:nz
+    plot(kgrid, EE(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Euler Errors (using %d Chebyshev Polynomials)', d))
+xlabel('Capital Stock')
+legend('show', 'Location', 'southeast')
+hold off
+grid on
+
 
