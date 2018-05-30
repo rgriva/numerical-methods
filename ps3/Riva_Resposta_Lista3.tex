@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage[brazilian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\linespread{1.3}
+\parskip=12pt
+\parindent=0pt
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{amsthm}
+\usepackage{color}
+
+
+% Defining the question styles
+\theoremstyle{definition}
+\newtheorem{prob}{Problema}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Prob}{\mathbb{P}}
+
+% declare a new theorem style
+\newtheoremstyle{solution}%
+{1pt}% Space above
+{1pt}% Space below 
+{\itshape\color{red}}% Body font
+{}% Indent amount
+{\bfseries\color{red}}% Theorem head font
+{.}% Punctuation after theorem head
+{.5em}% Space after theorem head
+{}% Theorem head spec (can be left empty, meaning ‘normal’)
+
+\theoremstyle{solution}
+\newtheorem*{solution}{Solution}
+
+% --- Code starts here ---
+\begin{document}
+	\begin{center}
+		{\Large{\textbf{Lista III - Métodos Numéricos}}}\\
+		\vspace{0.2cm}
+		EPGE - 2018\\
+		Professor: Cézar Santos\\
+		Aluno: Raul Guarini Riva
+	\end{center}
+	
+\begin{prob}
+	Segui a mesma calibração da lista anterior e encontrei as funções política do consumo e do capital através da técnica de colocação aliada aos polinômios de Chebyshev. O código principal da lista está no arquivo \texttt{ps3.m}. O tempo de execução desta técnica de projeção espectral foi o menor dentre todas as técnicas até agora (desde a Lista 2): ao redor de 0.4 segundos.
+	
+	A discretização do processo estocástico da TFP foi feito através da técnica de Tauchen, da mesma maneira das outras listas. Utilizei 7 polinômios de Chebyshev para computar a projeção ($d = 6$, na notação dos slides). O problema é muito bem comportado e, portanto, não foi necessário $d$ muito grande. Testei dimensões maiores mas os valores correspondente de $\gamma_{j}$ rapidamente iam para zero, indicado não ser necessário mais graus de liberdade para a projeção.
+	
+	A função \texttt{chebyshev\_poly} computa raízes de um polinômio de Chebyshev de ordem $k$ e pode avaliá-lo em qualquer ponto de $[-1,1]$. A função \texttt{C\_proj} computa a projeção da função política do consumo dado um vetor $(d+1)$-dimensional $\gamma$ e um grid no qual o valor do capital de interesse se encontra. Finalmente a função \texttt{risk\_function} computa o resíduo\footnote{Não sei bem o motivo, mas de alguma forma achei que o $R(\gamma, K)$ dos slides eram ``Risk'' e não ``Residual''. Implementei tudo e usei a função várias vezes, só notei no final a confusão. Achei que iria semear bugs se trocasse o nome, então deixei desse jeito. Desculpa!} da projeção. É esta a função que define o sistema de $(d+1)$ equações que a função do MATLAB \texttt{fsolve} resolve. A próxima figura ilustra as funções política e Euler Errors.
+	\begin{figure}[ht!]
+		\centering
+		\includegraphics[scale=0.25]{item1.png}
+	\end{figure}
+	
+	Assim como antes, a função política do capital é praticamente linear e não varia muito de acordo com a TFP. Entretanto, níveis maiores de TFP levam a níveis maiores de capital no próximo período, dado o mesmo capital inicial. Este tipo de monotonicidade também é verificada na função política do consumo. Nota-se que esta tem maior curvatura do que a função política do capital.
+	
+	Curiosamente, o aspecto das curvas de Euler Errors é diferente daquele encontrado, por exemplo, na implementação do grid endógeno na Lista 2. As curvas do erro são basicamente funções constantes de $k$ mas apresentam um comportamento interessante em $z$. Prestando atenção na legenda, vemos que o menor erro de aproximação foi alcançado no valor central do grid de $iz = 4$ e as outras curvas parecem estar dispostas duas a duas de acordo com a distância ao centro. Quanto mais próximo a este, menor o erro de aproximação. Apesar desta observação, não consegui interpretar este resultado.
+\end{prob}
+
+\end{document}
