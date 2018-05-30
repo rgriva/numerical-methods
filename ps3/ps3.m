@@ -36,7 +36,7 @@ disp(' ')   % Gimme some space!
 
 tic;
 % I will follow the steps from the slides
-d = 3;         % Order of target polynomial
+d = 6;         % Order of target polynomial
 
 a = 2/(max(kgrid) - min(kgrid));
 b = -1*((max(kgrid) + min(kgrid)) / (max(kgrid) - min(kgrid)));
@@ -110,7 +110,7 @@ hold on
 for i = 1:nz
     plot(kgrid, g(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
 end
-title(sprintf('Policy Function for Capital Stock (using %d Chebyshev Polynomials)', d))
+title(sprintf('Policy Function for Capital Stock (using %d Chebyshev Polynomials)', d+1))
 xlabel('Capital Stock')
 legend('show', 'Location', 'southeast')
 hold off
@@ -121,7 +121,7 @@ hold on
 for i = 1:nz
     plot(kgrid, C(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
 end
-title(sprintf('Policy Function for Consumption (using %d Chebyshev Polynomials)', d))
+title(sprintf('Policy Function for Consumption (using %d Chebyshev Polynomials)', d+1))
 xlabel('Capital Stock')
 legend('show', 'Location', 'southeast')
 hold off
@@ -134,7 +134,7 @@ hold on
 for i = 1:nz
     plot(kgrid, EE(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
 end
-title(sprintf('Euler Errors (using %d Chebyshev Polynomials)', d))
+title(sprintf('Euler Errors (using %d Chebyshev Polynomials)', d+1))
 xlabel('Capital Stock')
 legend('show', 'Location', 'southeast')
 hold off
