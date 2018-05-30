@@ -32,7 +32,7 @@ zgrid = zgrid';         % Row vector!
 disp('Tauchen discretization done.')
 disp(' ')   % Gimme some space!
 
-%% Item 1 - Chebyshev Polynomials
+%% Problem 1 - Chebyshev Polynomials
 
 tic;
 % I will follow the steps from the slides
@@ -139,5 +139,8 @@ xlabel('Capital Stock')
 legend('show', 'Location', 'southeast')
 hold off
 grid on
+
+%% Problem 2 - Finite Elements + Chebyshev Polynomials
+
 
 
