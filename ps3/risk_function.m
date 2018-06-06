@@ -20,7 +20,7 @@ measure = P(state,:);
 tms = (C1./C0).^(-mu);
 
 % Marginal productivity is a nk x nz matrix
-pmg = (1 - delta + alpha* exp(zgrid).* K1.^(alpha -1));
+pmg = (1 - delta + alpha * exp(zgrid).* K1.^(alpha -1));
 
 risk_vector = beta*(tms .* pmg)*measure' - 1;
 
