@@ -82,7 +82,7 @@ disp(' ')
 % Computing the policy function for capital
 g = exp(zgrid).*kgrid.^alpha + (1-delta)*kgrid - C;
 
-%% Computing Euler Errors
+% Computing Euler Errors
 u_marginal = @(c) c.^(-mu);
 u_marginal_inverse = @(u) u.^(-1/mu);
 pmg = @(K_new, Z) alpha*exp(Z).*K_new.^(alpha - 1) + 1 - delta;
@@ -140,7 +140,92 @@ legend('show', 'Location', 'southeast')
 hold off
 grid on
 
-%% Problem 2 - Finite Elements + Chebyshev Polynomials
+%% Problem 2 - Finite Elements + Collocation
+tic
+C_finel = zeros(nk,nz);
+n_elements = 50;
+
+disp('Starting the projection on Finite Elements with Collocation...')
+for iz = 1:nz
+    state = iz;
+    K0 = linspace(kgrid(1), kgrid(end), 2*n_elements)';     % This should be a column vector!
+    
+    % Initial condition
+    a_finel0 = ones(n_elements, 1)/(n_elements);
+    intercept = ones(n_elements, 1);
+    
+    % Joining parameters
+    params0 = [intercept; a_finel0];
+    
+    % Solving the system
+    options = optimset('Display','off');     % Turning off dialogs
+    %R_finel = @(params) risk_function_finel(params(1:n_elements), params(n_elements+1:end), K0, kgrid, n_elements, zgrid, state, P, alpha, mu, beta, delta);
+    R_finel = @(params) risk_function_finel(params(1:n_elements), params(n_elements+1 :end), K0, kgrid, n_elements, zgrid, state, P, alpha, mu, beta, delta);
+    params_optimal = fsolve(R_finel, params0, options);
+    
+    % Separating again
+    a_finel_optimal = params_optimal(n_elements+1:end);
+    intercept_optimal = params_optimal(1:n_elements);
+    
+    % Computing projection
+    C_finel(:,iz) = C_proj_finel(intercept_optimal, a_finel_optimal, kgrid, kgrid, n_elements);
+end
+disp('Finite Elements projection done.')
+toc
+
+% Computing the policy function for capital
+g_finel = exp(zgrid).*kgrid.^alpha + (1-delta)*kgrid - C_finel;
+
+% Computing Euler Errors
+next_C_finel = zeros(nk, nz);
+
+for iz = 1:nz
+    next_C_finel(:, iz) = interp1(kgrid, C(:, iz), g(:, iz));
+end
+
+E = u_marginal(next_C).* pmg(g, zgrid) * P';
+EE_finel = log10(abs(1 - u_marginal_inverse(beta*E)./C));
+
+%% Plotting Results
+disp(' ')
+disp('Press any key to plot results from Item 2 - Collocation Points')
+pause;
+
+set(0,'defaultAxesFontSize',16);
+figure('position', [100,10,900, 1400]); 
+subplot(3,1,1)
+hold on
+for i = 1:nz
+    plot(kgrid, g_finel(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Policy Function for Capital Stock (using Collocation and %d FE)', n_elements))
+xlabel('Capital Stock')
+legend('show', 'Location', 'Best')
+hold off
+grid on
+
+subplot(3,1,2)
+hold on
+for i = 1:nz
+    plot(kgrid, C_finel(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Policy Function for Consumption (using Collocation and %d FE)', n_elements))
+xlabel('Capital Stock')
+legend('show', 'Location', 'Best')
+hold off
+grid on
+
+% Plotting Euler Errors
+subplot(3,1,3)
+hold on
+for i = 1:nz
+    plot(kgrid, EE_finel(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Euler Errors (using Collocation and %d FE)', n_elements))
+xlabel('Capital Stock')
+legend('show', 'Location', 'Best')
+hold off
+grid on
 
 
 
