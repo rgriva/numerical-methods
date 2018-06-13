@@ -1,5 +1,5 @@
 function proj = C_proj(gamma, K, kgrid)
-% proj = C_PROJ(gamma, K) computes the projection of the comsumption
+% proj = C_PROJ(gamma, K, kgrid) computes the projection of the consumption
 % function on a point K of kgrid using the vector gamma of projection coefficients.
 % The order of projection is the size of gamma (for order d, choose a d+1
 % dimensional gamma)
