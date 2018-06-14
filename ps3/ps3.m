@@ -159,7 +159,6 @@ for iz = 1:nz
     
     % Solving the system
     options = optimset('Display','off');     % Turning off dialogs
-    %R_finel = @(params) risk_function_finel(params(1:n_elements), params(n_elements+1:end), K0, kgrid, n_elements, zgrid, state, P, alpha, mu, beta, delta);
     R_finel = @(params) risk_function_finel(params(1:n_elements), params(n_elements+1 :end), K0, kgrid, n_elements, zgrid, state, P, alpha, mu, beta, delta);
     params_optimal = fsolve(R_finel, params0, options);
     
@@ -227,5 +226,16 @@ legend('show', 'Location', 'Best')
 hold off
 grid on
 
+figure
+hold on
+for i = 1:nz
+    plot(kgrid, C(:,i) - C_finel(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Difference of Consumption Functions (%d FE vs %d Chebyshev Polynomials)', [n_elements, d+1]))
+xlabel('Capital Stock')
+legend('show', 'Location', 'Best')
+hold off
+grid on
 
+%% Problem 2 - Finite Elements + Galerkin
 
