@@ -14,6 +14,7 @@
 \usepackage{hyperref}
 \usepackage{amsthm}
 \usepackage{color}
+\usepackage{placeins}
 
 
 % Defining the question styles
@@ -65,4 +66,26 @@
 	Curiosamente, o aspecto das curvas de Euler Errors é diferente daquele encontrado, por exemplo, na implementação do grid endógeno na Lista 2. As curvas do erro são basicamente funções constantes de $k$ mas apresentam um comportamento interessante em $z$. Prestando atenção na legenda, vemos que o menor erro de aproximação foi alcançado no valor central do grid de $iz = 4$ e as outras curvas parecem estar dispostas duas a duas de acordo com a distância ao centro. Quanto mais próximo a este, menor o erro de aproximação. Apesar desta observação, não consegui interpretar este resultado.
 \end{prob}
 
+\FloatBarrier
+\begin{prob}
+	Resolvi primeiro o problema utilizando o método da colocação e elementos finitos. Esta abordagem se mostrou também bastante rápida comparada aos métodos da Lista 2, ainda que tenha tido desempenho ligeiramente pior do que a solução usando Polinômios de Chebyshev: 0.62 segundos.
+	
+	Dividi o intervalo correspondente ao grid do capital (o mesmo das outras questões) em 50 elementos finitos, isto é, 50 subintervalos. Dentro de cada elemento, fitei uma função afim do capital do tipo $\text{intercepto}_{i} + a_{i}k$, quando o valor $k$ cai no $i$-ésimo elemento. Portanto, computei ao todo 100 parâmetros. Para tal, utilizei o método da colocação em 100 pontos linearmente espaçados ao longo do grid original do capital.
+	
+	A função \texttt{find\_element} indica em qual elemento determinado valor de $k$ se encontra utilizando o método ``Divide and Conquer'' dos slides, visando aumentar a performance nesta parte do algoritmo. A função \texttt{C\_proj\_finel} é análoga à função \texttt{C\_proj} e computa, dados os parâmetros, um valor de $z$ e um valor de $k$, o consumo ótimo. Por último, a função \texttt{risk\_function\_finel} computa\footnote{O mesmo disclaimer sobre Risk e Residual...} o vetor de resíduos que a rotina \texttt{fsolve} tentará igualar a zero tendo os 100 parâmetros em questão como graus de liberdade.
+	
+	A próxima figura ilustra a função política do capital induzida pela função política do consumo, a própria função política do consumo e os Euler Errors:
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[scale = 0.25]{finel}
+	\end{figure}
+	
+	Um outro gráfico interessante é o gráfico da diferença ponto a ponto em $(k, z)$ das duas soluções para a função política do consumo encontradas até agora, utilizando polinômios de Chebyshev e Elementos Finitos com Colocação:
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[scale = 0.2]{cheby_fe}
+	\end{figure}
+	
+	A boa notícia é que a diferença (dos níveis) é bem pequena, da ordem de $10^{-2}$ no pior dos casos, quando o consumo varia aproximadamente entre $2.5$ e $4$ no estado estacionário. Curiosamente, esta diferença parece estar limitada superiormente por zero, isto é, parece ser o caso em que esta implementação de elementos finitos gera uma função política do consumo que está sempre acima daquela encontrada pelo método anterior. Contudo, é exatamente este o comportamento documentado nos slides ao comparar os polinômios de Chebyshev e o método de elementos finitos.
+\end{prob}
 \end{document}
