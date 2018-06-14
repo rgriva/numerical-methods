@@ -179,11 +179,11 @@ g_finel = exp(zgrid).*kgrid.^alpha + (1-delta)*kgrid - C_finel;
 next_C_finel = zeros(nk, nz);
 
 for iz = 1:nz
-    next_C_finel(:, iz) = interp1(kgrid, C(:, iz), g(:, iz));
+    next_C_finel(:, iz) = interp1(kgrid, C_finel(:, iz), g_finel(:, iz));
 end
 
-E = u_marginal(next_C).* pmg(g, zgrid) * P';
-EE_finel = log10(abs(1 - u_marginal_inverse(beta*E)./C));
+E = u_marginal(next_C_finel).* pmg(g_finel, zgrid) * P';
+EE_finel = log10(abs(1 - u_marginal_inverse(beta*E)./C_finel));
 
 %% Plotting Results
 disp(' ')
@@ -238,4 +238,6 @@ hold off
 grid on
 
 %% Problem 2 - Finite Elements + Galerkin
+
+
 
