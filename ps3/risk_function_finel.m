@@ -11,7 +11,7 @@ function risk_vector = risk_function_finel(intercept, a_finel, K0, kgrid, n_elem
 % The risk-vector is just the Euler Equation.
 
 C0 = C_proj_finel(intercept, a_finel, K0, kgrid, n_elements);
-K1 = (exp(zgrid(state))* K0.^alpha + (1 - delta)*K0 - C0);
+K1 = (exp(zgrid(state))* K0(:).^alpha + (1 - delta)*K0(:) - C0);
 C1 = C_proj_finel(intercept, a_finel, K1, kgrid, n_elements);
 
 % Conditional measure from the Markovian Process

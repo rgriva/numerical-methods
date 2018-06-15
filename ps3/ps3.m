@@ -238,6 +238,23 @@ hold off
 grid on
 
 %% Problem 2 - Finite Elements + Galerkin
-
-
-
+n_galerkin = 15;
+intercept = zeros(n_galerkin, 1);
+C_galerkin = zeros(nk, nz);
+%intercept = zeros(n_galerkin, 1);
+tic
+for iz = 1:nz
+    state = iz;
+    
+    % Initial condition
+    a_galerkin0 = ones(n_galerkin, 1)/(n_galerkin);
+    
+    % Computing the optimal parameters
+    options = optimset('Display','off');     % Turning off dialogs
+    R_galerkin = @(a_galerkin) risk_function_galerkin(a_galerkin, n_galerkin, kgrid, zgrid, state, P, alpha, mu, beta, delta);
+    [a_galerkin_optimal, value] = fsolve(R_galerkin, a_galerkin0, options);
+    
+    C_galerkin(:, iz) = C_proj_finel(intercept, a_galerkin_optimal, kgrid, kgrid, n_galerkin);
+end
+toc
+plot(kgrid, C_galerkin)
