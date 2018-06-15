@@ -238,7 +238,7 @@ hold off
 grid on
 
 %% Problem 2 - Finite Elements + Galerkin
-n_galerkin = 15;
+n_galerkin = 10;
 intercept = zeros(n_galerkin, 1);
 C_galerkin = zeros(nk, nz);
 %intercept = zeros(n_galerkin, 1);

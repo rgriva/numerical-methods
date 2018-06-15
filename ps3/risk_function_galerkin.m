@@ -19,7 +19,7 @@ for i=1:length(risk_vector)
     upper_bound = element_grid(i+1);
     
     % Defining the function to be integrated
-    inner_handle = @(k) (risk_function_finel(intercept, a_galerkin, k, kgrid, n_galerkin, zgrid, state, P, alpha, mu, beta, delta).*a_galerkin(i).*k(:))';
+    inner_handle = @(k) (risk_function_finel(intercept, a_galerkin, k, kgrid, n_galerkin, zgrid, state, P, alpha, mu, beta, delta).*(C_proj_finel(intercept, a_galerkin, k, kgrid, n_galerkin)))';
     
     % Integrating using 'integral' function
     risk_vector(i) = integral(inner_handle, lower_bound, upper_bound);
