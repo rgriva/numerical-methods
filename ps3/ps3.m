@@ -169,7 +169,7 @@ for iz = 1:nz
     % Computing projection
     C_finel(:,iz) = C_proj_finel(intercept_optimal, a_finel_optimal, kgrid, kgrid, n_elements);
 end
-disp('Finite Elements projection done.')
+disp('Finite Elements (with Collocation) projection done.')
 toc
 
 % Computing the policy function for capital
@@ -187,7 +187,7 @@ EE_finel = log10(abs(1 - u_marginal_inverse(beta*E)./C_finel));
 
 %% Plotting Results
 disp(' ')
-disp('Press any key to plot results from Item 2 - Collocation Points')
+disp('Press any key to plot results from Item 2 - Collocation + FE')
 pause;
 
 set(0,'defaultAxesFontSize',16);
@@ -238,23 +238,83 @@ hold off
 grid on
 
 %% Problem 2 - Finite Elements + Galerkin
-n_galerkin = 10;
-intercept = zeros(n_galerkin, 1);
+% This takes a lot of time compared to other methods
+
+n_galerkin = 20;
 C_galerkin = zeros(nk, nz);
-%intercept = zeros(n_galerkin, 1);
+disp('Starting the projection on Finite Elements with Galerkin...')
+disp('This takes a while to converge...')
 tic
 for iz = 1:nz
     state = iz;
     
     % Initial condition
     a_galerkin0 = ones(n_galerkin, 1)/(n_galerkin);
-    
+    intercept0 = zeros(n_galerkin, 1);
+    params0 = [intercept0; a_galerkin0];
     % Computing the optimal parameters
     options = optimset('Display','off');     % Turning off dialogs
-    R_galerkin = @(a_galerkin) risk_function_galerkin(a_galerkin, n_galerkin, kgrid, zgrid, state, P, alpha, mu, beta, delta);
-    [a_galerkin_optimal, value] = fsolve(R_galerkin, a_galerkin0, options);
-    
-    C_galerkin(:, iz) = C_proj_finel(intercept, a_galerkin_optimal, kgrid, kgrid, n_galerkin);
+    R_galerkin = @(params) risk_function_galerkin(params(1:n_galerkin), params(n_galerkin+1:end), n_galerkin, kgrid, zgrid, state, P, alpha, mu, beta, delta);
+    [params_optimal, value] = fsolve(R_galerkin, params0, options);
+    intercept_optimal = params_optimal(1:n_galerkin);
+    a_galerkin_optimal = params_optimal(n_galerkin+1:end);
+    C_galerkin(:, iz) = C_proj_finel(intercept_optimal, a_galerkin_optimal, kgrid, kgrid, n_galerkin);
 end
+disp('Finite Elements (with Galerkin) projection done.')
 toc
-plot(kgrid, C_galerkin)
+
+% Computing the policy function for capital
+g_galerkin = exp(zgrid).*kgrid.^alpha + (1-delta)*kgrid - C_galerkin;
+
+% Computing Euler Errors
+next_C_galerkin = zeros(nk, nz);
+for iz = 1:nz
+    next_C_galerkin(:, iz) = interp1(kgrid, C_galerkin(:, iz), g_galerkin(:, iz));
+end
+
+E = u_marginal(next_C_galerkin).* pmg(g_galerkin, zgrid) * P';
+EE_galerkin = log10(abs(1 - u_marginal_inverse(beta*E)./C_galerkin));
+
+%% Plotting results
+disp(' ')
+disp('Press any key to plot results from Item 2 - Galerkin + FE')
+pause;
+
+set(0,'defaultAxesFontSize',16);
+figure('position', [100,10,900, 1400]); 
+subplot(3,1,1)
+hold on
+for i = 1:nz
+    plot(kgrid, g_galerkin(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Policy Function for Capital Stock (using Galerkin and %d FE)', n_galerkin))
+xlabel('Capital Stock')
+legend('show', 'Location', 'Best')
+hold off
+grid on
+
+subplot(3,1,2)
+hold on
+for i = 1:nz
+    plot(kgrid, C_galerkin(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Policy Function for Consumption (using Galerkin and %d FE)', n_galerkin))
+xlabel('Capital Stock')
+legend('show', 'Location', 'Best')
+hold off
+grid on
+
+% Plotting Euler Errors
+subplot(3,1,3)
+hold on
+for i = 1:nz
+    plot(kgrid, EE_galerkin(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title(sprintf('Euler Errors (using Galerkin and %d FE)', n_galerkin))
+xlabel('Capital Stock')
+legend('show', 'Location', 'Best')
+hold off
+grid on
+
+
+

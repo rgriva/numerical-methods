@@ -1,4 +1,4 @@
-function risk_vector = risk_function_galerkin(a_galerkin, n_galerkin, kgrid, zgrid, state, P, alpha, mu, beta, delta)
+function risk_vector = risk_function_galerkin(intercept, a_galerkin, n_galerkin, kgrid, zgrid, state, P, alpha, mu, beta, delta)
 % This computes the risk function! The output is a column vector of
 % R(gamma, K0), where K0 are collocation points.
 % gamma: projection coefficients
@@ -9,10 +9,10 @@ function risk_vector = risk_function_galerkin(a_galerkin, n_galerkin, kgrid, zgr
 % P: transition matrix
 % alpha, mu, beta, delta: parameters
 
-intercept = zeros(n_galerkin, 1);
-risk_vector = ones(n_galerkin,1);
+%intercept = theta*ones(n_galerkin, 1);
+risk_vector = ones(2*n_galerkin,1);
 
-element_grid = linspace(kgrid(1), kgrid(end), n_galerkin + 1);
+element_grid = linspace(kgrid(1), kgrid(end), 2*n_galerkin + 1);
 for i=1:length(risk_vector)
     % Integral limits
     lower_bound = element_grid(i);
