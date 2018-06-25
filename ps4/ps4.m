@@ -30,7 +30,7 @@ disp('Tauchen discretization done');
 %% Solving the individual household problem
 
 % Grid for assets
-upper_bound = 100;
+upper_bound = 10;
 a_grid = linspace(0, upper_bound, nk)';
 % Grid for endowment
 e_grid = exp(zgrid);
@@ -73,5 +73,48 @@ end
 
 V = TV;
 g = a_grid(index);
-disp('Fixed point found')
+disp('Fixed point found!')
 toc
+
+%% Computing the invariant distribution
+
+% Initial distribution (starting uniformly)
+pi0 = ones(nk, nz);
+pi0 = pi0/length(pi0(:));
+
+% This indicator function shows if a given level of assets is the best
+% choice under a given state. For example, if indicator(2,3,6) == 1, it
+% means that under the second value for current assets and third value for
+% endownment, the sixth value of assets is the best choice
+indicator = zeros(nk, nz, nk);
+for ik = 1:nk
+    indicator(:,:, ik) = (g == a_grid(ik));
+end
+
+next_pi = zeros(size(pi0));     % Allocating memory
+
+inv_it = 1;         % Invariant distribution iterations counter
+max_inv_it = 1000;
+inv_tol = 1e-4;     % Invariant distribution convergence parameter
+inv_error = inv_tol + 1;
+
+disp(' ')
+disp('Looking for a stationary distribution over the state space...')
+tic
+while inv_error > inv_tol & inv_it < max_inv_it
+    % Computing next period distribution
+    for ik = 1:nk
+        effective_measure = pi0 .* indicator(:,:,ik);
+        next_pi(ik, :) = sum(effective_measure*P);
+    end
+    
+    % Updating everything
+    inv_error = norm(next_pi - pi0);        % Updating error
+    inv_it = inv_it + 1;                    % Updating iterations
+    pi0 = next_pi;                          % Updating the loop
+end
+disp('Invariant distribution found!')
+toc
+disp('Robustness check --> Displaying the sum of all elements (should be 1):')
+sum_elements = sum(sum(next_pi));
+sum_elements
