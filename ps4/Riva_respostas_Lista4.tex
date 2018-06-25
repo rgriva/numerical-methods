@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\linespread{1.3}
+\parskip=12pt
+\parindent=0pt
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{amsthm}
+\usepackage{color}
+
+
+% Defining the question styles
+\theoremstyle{definition}
+\newtheorem{prob}{Problem}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Prob}{\mathbb{P}}
+
+% declare a new theorem style
+\newtheoremstyle{solution}%
+{1pt}% Space above
+{1pt}% Space below 
+{\itshape\color{red}}% Body font
+{}% Indent amount
+{\bfseries\color{red}}% Theorem head font
+{.}% Punctuation after theorem head
+{.5em}% Space after theorem head
+{}% Theorem head spec (can be left empty, meaning ‘normal’)
+
+\theoremstyle{solution}
+\newtheorem*{solution}{Solution}
+
+% --- Code starts here ---
+\begin{document}
+	\begin{center}
+		{\Large{\textbf{Lista IV - Métodos Numéricos}}}\\
+		\vspace{0.2cm}
+		EPGE - 2018\\
+		Professor: Cezar Santos\\
+		Aluno: Raul Guarini Riva
+	\end{center}
+	
+
+O código principal da lista está no arquivo \texttt{ps4.m}. Como nas outras listas, utilizei minha função \texttt{tauchen\_ar1} para realizar a discretização desejada do grid em 9 pontos. O problema do fazendeiro consiste em escolher consumo e número de cabras que serão guardadas em cada instante do tempo. Portanto, as variáveis de estado são o choque de dotação atual $z$ e o nível de cabras estocadas no presente $a$. As variáveis de controle são o consumo $c$ e o número de cabras a serem estocadas $a'$. A equação funcional que o fazendeiro tenta resolver, dado $q$, é dada por:
+\begin{gather*}
+	V(z, a) = \max\limits_{c, a'} \{ u(c) + \beta\E(V(z', a')|z)\}\\
+	\text{s.t.} \quad c + qa' = e^z + a
+\end{gather*}
+Para a discretização do espaço de ativos, precisamos de um limite de endividamento adequado. Em geral, poderíamos utilizar o limite natural de endividamento. Contudo, neste contexto rural, parece fazer sentido definir como limite inferior para o número de cabras estocadas o valor zero.
+
+\end{document}
