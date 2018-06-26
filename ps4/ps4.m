@@ -7,36 +7,54 @@ clc; close all; clear all;
 %% Calibration
 beta = 0.96;
 q = 0.96;
-%rho = input('Input the value for rho: ');
-%gamma = input('Input the value for gamma: ');
-%sigma = input('Input the value for sigma: ');
+rho = input('Input the value for rho: ');
+gamma = input('Input the value for gamma: ');
+sigma = input('Input the value for sigma: ');
+disp(' ')
 
-rho = 0.9;
-sigma = 0.01;
+% rho = 0.9;
+% sigma = 0.01;
 sigma2 = sigma^2;
-gamma = 1.0001;
+% gamma = 1.0001;
 m = 3;      % Tauchen 'bandwidth' parameter
 mu = 0;
 
 u = @(c) (c.^(1-gamma) - 1)/(1 - gamma);
 
 nz = 9;
-nk = 500;
+nk = 2000;
 
 %% Tauchen method
 [zgrid, P] = tauchen_ar1(mu, rho, sigma2, nz, m);
 disp('Tauchen discretization done');
 
+% % Computing the ergodic distribution
+% tauchen_it = 1;
+% max_tauchen_it = 1000;
+% tauchen_tol = 1e-7;
+% tauchen_error = tauchen_tol + 1;
+% inv_dist_tauchen_0 = ones(size(zgrid))/length(zgrid);
+% 
+% while tauchen_it < max_tauchen_it & tauchen_error > tauchen_tol
+%     inv_dist_tauchen = P' * inv_dist_tauchen_0;
+%     tauchen_it = tauchen_it + 1;
+%     tauchen_error = norm(inv_dist_tauchen - inv_dist_tauchen_0);
+%     inv_dist_tauchen_0 = inv_dist_tauchen;
+% end
+% 
+% disp('Ergodic probabilities for endownment shock found!')
+% disp(' ')
+
 %% Solving the individual household problem
 
 % Grid for assets
-upper_bound = 10;
-a_grid = linspace(0, upper_bound, nk)';
+upper_bound = 40;
+a_grid = linspace(0.0001, upper_bound, nk)';
 % Grid for endowment
 e_grid = exp(zgrid);
 
 % Initial guess for value function and iteration parameters
-V0 = repmat(a_grid, 1, nz);
+V0 = repmat(sqrt(a_grid), 1, nz);
 max_it = 1000;
 tol = 1e-3;
 dist = tol +1;
@@ -76,7 +94,20 @@ g = a_grid(index);
 disp('Fixed point found!')
 toc
 
-%% Computing the invariant distribution
+%% Plotting Value Function
+set(0,'defaultAxesFontSize',16);
+figure('position', [100,10,900, 1400]);
+hold on
+for i = 1:nz
+    plot(a_grid, V(:,i), 'DisplayName', strcat('iz ={ }', num2str(i)))
+end
+title('Value Function - Farmers Problem')
+xlabel('Capital Stock')
+legend('show', 'Location', 'southeast')
+hold off
+grid on
+
+%% Computing the invariant distributions
 
 % Initial distribution (starting uniformly)
 pi0 = ones(nk, nz);
@@ -118,3 +149,9 @@ toc
 disp('Robustness check --> Displaying the sum of all elements (should be 1):')
 sum_elements = sum(sum(next_pi));
 sum_elements
+
+%% Aggregate goats
+
+aggregate_goats = sum(sum(g.*next_pi));
+disp('Aggregate goats:')
+disp(aggregate_goats)
