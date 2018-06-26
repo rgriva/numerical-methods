@@ -55,6 +55,36 @@ O código principal da lista está no arquivo \texttt{ps4.m}. Como nas outras li
 	V(z, a) = \max\limits_{c, a'} \{ u(c) + \beta\E(V(z', a')|z)\}\\
 	\text{s.t.} \quad c + qa' = e^z + a
 \end{gather*}
-Para a discretização do espaço de ativos, precisamos de um limite de endividamento adequado. Em geral, poderíamos utilizar o limite natural de endividamento. Contudo, neste contexto rural, parece fazer sentido definir como limite inferior para o número de cabras estocadas o valor zero.
+Para a discretização do espaço de ativos, precisamos de um limite de endividamento adequado. Em geral, poderíamos utilizar o limite natural de endividamento. Contudo, neste contexto rural, parece fazer sentido definir como limite inferior para o número de cabras estocadas o valor zero. Para o limite superior, segui os slides e o defini como 40. Utilizei 2000 pontos no grid de cabras e nove pontos no grid do choque de produtividade.
+
+Solucionei o modelo utilizando o método de iteração da função valor em vista da simplicidade da implementação e do quão simples é o problema do fazendeiro. A figura a seguir mostra a função valor sob a calibração original:
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale = 0.22]{value_farmers}
+\end{figure}
+
+Em seguida, computei a distribuição estacionária, de elemento típico $\pi(z, a)$, no espaço das variáveis de estado. Utilizei o método recursivo descrito nos slides, levando em conta a cada iteração a função política de estocagem de cabras.
+
+O código inclusive implementa um teste de robustez da solução que é checar se a soma de todas os valores da distribuição se iguala a 1.
+
+Com base na distribuição estacionária $\pi$, computei a variável "Aggregate Goats", análoga ao que seria o capital agregado num modelo à la Hugget ou Aiyagari:
+\begin{gather*}
+	\text{Aggregate Goats} = \sum\limits_{a}\sum\limits_{z}g(z,a)\pi(z,a)
+\end{gather*}
+onde $g(z,a)$ corresponde á função política de estocagem de cabras avaliada no estado $(z,a)$, já computada no estágio anterior. A tabela abaixo mostra como esta variável se comportou em cada cenário pedido. Nos três últimos casos, apenas o parâmetro em destaque foi diferente da calibração original proposta na lista.
+\begin{center}
+	\begin{tabular}{c|c}
+	Calibração & Aggregate Goats\\
+	\hline
+	\hline
+	Original & 20.0093\\
+	$\rho = 0.97$ & 20.0689\\
+	$\gamma = 5$ & 20.0916\\
+	$\sigma = 0.05$ & 20.1403
+\end{tabular}
+
+Com 
+
+\end{center}
 
 \end{document}
