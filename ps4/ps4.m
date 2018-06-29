@@ -28,23 +28,6 @@ nk = 2000;
 [zgrid, P] = tauchen_ar1(mu, rho, sigma2, nz, m);
 disp('Tauchen discretization done');
 
-% % Computing the ergodic distribution
-% tauchen_it = 1;
-% max_tauchen_it = 1000;
-% tauchen_tol = 1e-7;
-% tauchen_error = tauchen_tol + 1;
-% inv_dist_tauchen_0 = ones(size(zgrid))/length(zgrid);
-% 
-% while tauchen_it < max_tauchen_it & tauchen_error > tauchen_tol
-%     inv_dist_tauchen = P' * inv_dist_tauchen_0;
-%     tauchen_it = tauchen_it + 1;
-%     tauchen_error = norm(inv_dist_tauchen - inv_dist_tauchen_0);
-%     inv_dist_tauchen_0 = inv_dist_tauchen;
-% end
-% 
-% disp('Ergodic probabilities for endownment shock found!')
-% disp(' ')
-
 %% Solving the individual household problem
 
 % Grid for assets
